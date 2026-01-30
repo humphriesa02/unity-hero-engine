@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     public JumpState jumpState;
     public LandingState landingState;
     public CombatState combatState;
+    public AttackState attackState;
 
     void Awake()
     {
@@ -51,6 +52,7 @@ public class PlayerController : MonoBehaviour
         jumpState = new JumpState(this, movementSM);
         landingState = new LandingState(this, movementSM);
         combatState = new CombatState(this, movementSM);
+        attackState = new AttackState(this, movementSM);
     }
 
     void Start()

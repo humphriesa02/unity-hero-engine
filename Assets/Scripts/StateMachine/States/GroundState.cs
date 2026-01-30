@@ -28,6 +28,7 @@ public class GroundState : State
         currentVelocity = Vector3.zero;
         gravityVelocity.y = 0;
         drawWeapon = false;
+        player.animator.SetBool("combat", false);
  
         playerSpeed = player.moveSpeed;
         grounded = player.controller.isGrounded;

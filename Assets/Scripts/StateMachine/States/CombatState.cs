@@ -7,6 +7,7 @@ public class CombatState : State
     bool grounded;
     float playerSpeed;
     bool sheatheWeapon;
+    bool attack;
 
     private Vector3 cVelocity;
 
@@ -22,6 +23,7 @@ public class CombatState : State
         currentVelocity = Vector3.zero;
         gravityVelocity.y = 0;
         player.animator.SetBool("combat", true);
+        attack = false;
  
         playerSpeed = player.moveSpeed;
         grounded = player.controller.isGrounded;
@@ -35,6 +37,10 @@ public class CombatState : State
         if (primaryAction.triggered)
         {
             sheatheWeapon = true;
+        }
+        if (secondaryAction.triggered)
+        {
+            attack = true;
         }
 
         moveInput = moveAction.ReadValue<Vector2>();
@@ -54,6 +60,12 @@ public class CombatState : State
         { 
             player.animator.SetTrigger("sheatheWeapon");
             stateMachine.ChangeState(player.groundState);
+        }
+
+        if (attack)
+        {
+            player.animator.SetTrigger("attack");
+            stateMachine.ChangeState(player.attackState);
         }
         
         gravityVelocity.y += gravityValue * Time.deltaTime;
@@ -76,7 +88,6 @@ public class CombatState : State
     public override void Exit()
     {
         base.Exit();
-        player.animator.SetBool("combat", false);
 
         gravityVelocity.y = 0f;
         player.playerVelocity = new Vector3(moveInput.x, 0, moveInput.y);

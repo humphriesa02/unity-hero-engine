@@ -38,4 +38,14 @@ public class EquipmentSystem : MonoBehaviour
         currentWeaponOnBack = Instantiate(shield, backSocket.transform);
         Destroy(currentOffhandItem);
     }
+
+    public void StartDealDamage()
+    {
+        currentWeaponInHand.GetComponentInChildren<Hurtbox>().StartDealDamage();
+    }
+
+    public void EndDealDamage()
+    {
+        currentWeaponInHand.GetComponentInChildren<Hurtbox>().EndDealDamage();
+    }
 }
