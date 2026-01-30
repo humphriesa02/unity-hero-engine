@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d58331a69c763134fbb691e88add03db
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239293
+  packageName: 3D Stylized Weapons
+  packageVersion: 1.0
+  assetPath: Assets/Weapons/3D Weapons/Materials/Hammer Base.mat
+  uploadId: 549674

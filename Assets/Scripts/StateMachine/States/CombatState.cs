@@ -21,6 +21,7 @@ public class CombatState : State
         velocity = Vector3.zero;
         currentVelocity = Vector3.zero;
         gravityVelocity.y = 0;
+        player.animator.SetBool("combat", true);
  
         playerSpeed = player.moveSpeed;
         grounded = player.controller.isGrounded;
@@ -75,6 +76,7 @@ public class CombatState : State
     public override void Exit()
     {
         base.Exit();
+        player.animator.SetBool("combat", false);
 
         gravityVelocity.y = 0f;
         player.playerVelocity = new Vector3(moveInput.x, 0, moveInput.y);
