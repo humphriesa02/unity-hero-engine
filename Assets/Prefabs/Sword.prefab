@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2525704955999363250}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 7082143265237333142}
   - component: {fileID: 2811238778655830368}
   - component: {fileID: 5657254367795629933}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: sword_sword_sword_Metal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5144341484821574288}
   - component: {fileID: 3357454968096546686}
-  m_Layer: 0
+  - component: {fileID: 625511564510710175}
+  m_Layer: 10
   m_Name: Hurtbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -149,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 7764089562730009943}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.536, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -167,11 +168,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31b7a027069bdd24ea9b4c521a2e9bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hurtbox
-  weaponLength: 1.5
   weaponDamage: 5
-  hitMask:
+--- !u!136 &625511564510710175
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7764089562730009943}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.2
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9049312643818805567
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +203,7 @@ GameObject:
   - component: {fileID: 4456326857750963918}
   - component: {fileID: 4919998033377042318}
   - component: {fileID: 4532701053597181984}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: sword_sword_sword_Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -3,48 +3,39 @@ using UnityEngine;
 
 public class Hurtbox : MonoBehaviour
 {
-    bool canDealDamage;
     List<GameObject> hasDealtDamage = new();
 
-    [SerializeField] private float weaponLength;
     [SerializeField] private float weaponDamage;
-    [SerializeField] private LayerMask hitMask;
+    private CapsuleCollider hitCollider;
+
+    void Awake()
+    {
+        hitCollider = GetComponent<CapsuleCollider>();
+    }
 
     void Start()
     {
-        canDealDamage = false;
-    }
-
-    void Update()
-    {
-        if (canDealDamage)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, -transform.up, out hit, hitMask))
-            {
-                if (!hasDealtDamage.Contains(hit.transform.gameObject))
-                {
-                    Debug.Log("Damage applied: " + weaponDamage);
-                    hasDealtDamage.Add(hit.transform.gameObject);
-                }
-            }
-        }
+        hitCollider.enabled = false;
     }
 
     public void StartDealDamage()
     {
-        canDealDamage = true;
+        hitCollider.enabled = true;
         hasDealtDamage.Clear();
     }
 
     public void EndDealDamage()
     {
-        canDealDamage = false;
+        hitCollider.enabled = false;
     }
 
-    private void OnDrawGizmos()
+    void OnTriggerEnter(Collider other)
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position-transform.up * weaponLength);
+        Debug.Log("Trigger Entered");
+        if (!hasDealtDamage.Contains(other.transform.gameObject))
+        {
+            Debug.Log("Damage applied to: " + other.transform.gameObject.name);
+            hasDealtDamage.Add(other.transform.gameObject);
+        }
     }
 }
