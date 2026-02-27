@@ -1,12 +1,34 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Generates on hit
+/// </summary>
+public readonly struct HurtContext
+{
+    public readonly HitData data;
+    public readonly GameObject instigator;
+    public readonly Vector3 point;
+    public readonly Vector3 direction;
+    public readonly int attackId;
+
+    public HurtContext(HitData data, GameObject instigator, Vector3 point, Vector3 direction, int attackId)
+    {
+        this.data = data;
+        this.instigator = instigator;
+        this.point = point;
+        this.direction = direction;
+        this.attackId = attackId;
+    }
+}
+
 public class Hurtbox : MonoBehaviour
 {
-    List<GameObject> hasDealtDamage = new();
-
-    [SerializeField] private float weaponDamage;
+    HashSet<GameObject> objectsToDealDamage = new();
+    [SerializeField] private HitData data;
     private CapsuleCollider hitCollider;
+    private int numHits = 0;
 
     void Awake()
     {
@@ -21,7 +43,8 @@ public class Hurtbox : MonoBehaviour
     public void StartDealDamage()
     {
         hitCollider.enabled = true;
-        hasDealtDamage.Clear();
+        objectsToDealDamage.Clear();
+        numHits = 0;
     }
 
     public void EndDealDamage()
@@ -29,13 +52,17 @@ public class Hurtbox : MonoBehaviour
         hitCollider.enabled = false;
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnCollisionStay(Collision collision)
     {
-        Debug.Log("Trigger Entered");
-        if (!hasDealtDamage.Contains(other.transform.gameObject))
+        if (collision.gameObject.TryGetComponent(out Hitbox hitbox))
         {
-            Debug.Log("Damage applied to: " + other.transform.gameObject.name);
-            hasDealtDamage.Add(other.transform.gameObject);
+            // HurtContext context = new HurtContext(
+            //     data,
+            //     gameObject,
+            //     other.
+            // )
+            // hitbox.OnHit(weaponDamage);
+            objectsToDealDamage.Add(collision.gameObject);
         }
     }
 }
