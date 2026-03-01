@@ -3,9 +3,9 @@ using UnityEngine.Events;
 
 public class Hitbox : MonoBehaviour
 {
-    [SerializeField] UnityEvent onHitEvent;
+    [SerializeField] UnityEvent<HurtContext> onHitEvent;
     public void OnHit(HurtContext context)
     {
-        onHitEvent?.Invoke();
+        onHitEvent?.Invoke(context);
     }
 }

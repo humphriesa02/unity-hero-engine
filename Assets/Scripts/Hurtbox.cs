@@ -5,35 +5,30 @@ using UnityEngine;
 /// <summary>
 /// Generates on hit
 /// </summary>
-public readonly struct HurtContext
+public struct HurtContext
 {
     public readonly HitData data;
     public readonly GameObject instigator;
     public readonly Vector3 point;
-    public readonly Vector3 direction;
-    public readonly int attackId;
+    public int numHitsCurrent;
+    public float timeSinceLastHit;
 
-    public HurtContext(HitData data, GameObject instigator, Vector3 point, Vector3 direction, int attackId)
+    public HurtContext(HitData data, GameObject instigator, Vector3 point, int numHitsCurrent = 0, float timeSinceLastHit = 0f)
     {
         this.data = data;
         this.instigator = instigator;
         this.point = point;
-        this.direction = direction;
-        this.attackId = attackId;
+        this.numHitsCurrent = numHitsCurrent;
+        this.timeSinceLastHit = timeSinceLastHit;
     }
 }
 
 public class Hurtbox : MonoBehaviour
 {
-    HashSet<GameObject> objectsToDealDamage = new();
+    Dictionary<Hitbox, HurtContext> damageObjectToHurtContext = new();
+    List<Hitbox> hitboxesToRemove = new();
     [SerializeField] private HitData data;
-    private CapsuleCollider hitCollider;
-    private int numHits = 0;
-
-    void Awake()
-    {
-        hitCollider = GetComponent<CapsuleCollider>();
-    }
+    [SerializeField] private Collider hitCollider;
 
     void Start()
     {
@@ -43,8 +38,7 @@ public class Hurtbox : MonoBehaviour
     public void StartDealDamage()
     {
         hitCollider.enabled = true;
-        objectsToDealDamage.Clear();
-        numHits = 0;
+        damageObjectToHurtContext.Clear();
     }
 
     public void EndDealDamage()
@@ -52,17 +46,43 @@ public class Hurtbox : MonoBehaviour
         hitCollider.enabled = false;
     }
 
-    void OnCollisionStay(Collision collision)
+    void Update()
     {
-        if (collision.gameObject.TryGetComponent(out Hitbox hitbox))
+        if (damageObjectToHurtContext.Count > 0)
         {
-            // HurtContext context = new HurtContext(
-            //     data,
-            //     gameObject,
-            //     other.
-            // )
-            // hitbox.OnHit(weaponDamage);
-            objectsToDealDamage.Add(collision.gameObject);
+            foreach (var kvp in damageObjectToHurtContext)
+            {
+                Debug.Log("Processing hit on " + kvp.Key.name);
+                Hitbox hitbox = kvp.Key;
+                HurtContext context = kvp.Value;
+                context.timeSinceLastHit += Time.deltaTime;
+                if (context.numHitsCurrent <= context.data.hitCount && context.timeSinceLastHit >= context.data.hitDelay)
+                {
+                    context.numHitsCurrent++;
+                    context.timeSinceLastHit = 0f;
+                    Debug.Log("Hit " + hitbox.name + " for " + context.data.damage + " damage. Hit count: " + context.numHitsCurrent);
+                    hitbox.OnHit(context);
+                    hitboxesToRemove.Add(hitbox);
+                }
+            }
+
+            foreach (var hitbox in hitboxesToRemove)
+            {
+                damageObjectToHurtContext.Remove(hitbox);
+            }
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.TryGetComponent(out Hitbox hitbox))
+        {
+            Debug.Log("Collided with " + hitbox.name);
+            if (damageObjectToHurtContext.ContainsKey(hitbox))
+                return;
+            Debug.Log("Registering hit on " + hitbox.name);
+            HurtContext context = new(data, gameObject, other.ClosestPoint(transform.position));
+            damageObjectToHurtContext.Add(hitbox, context);
         }
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Attaches to a hurtbox. What will apply to a hitbox.
 /// </summary>
+[CreateAssetMenu(fileName = "HitData", menuName = "ScriptableObjects/HitData", order = 1)]
 public class HitData : ScriptableObject
 {
     public float damage;

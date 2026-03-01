@@ -2,9 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
-{
-    [SerializeField] float health = 3;
-    
+{    
     [Header("Combat")]
     [SerializeField] float attackCD = 3f;
     [SerializeField] float attackRange = 1f;
@@ -31,7 +29,6 @@ public class Enemy : MonoBehaviour
         {
             if (Vector3.Distance(player.transform.position, transform.position) <= attackRange)
             {
-                Debug.Log("Attack!");
                 anim.SetTrigger("Attack");
                 timePassed = 0;
             }
@@ -45,23 +42,6 @@ public class Enemy : MonoBehaviour
             transform.LookAt(player.transform);
         }
         newDestinationCD -= Time.deltaTime;
-    }
-
-    public void TakeDamage(float damageAmount)
-    {
-        Debug.Log("Taking damage");
-        health -= damageAmount;
-        anim.SetTrigger("Damage");
-
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
-
-    void Die()
-    {
-        Destroy(gameObject);
     }
 
     void OnDrawGizmos()
