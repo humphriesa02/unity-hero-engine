@@ -26,14 +26,12 @@ public class Health : MonoBehaviour
         else
         {
             ApplyKnockback(context);
-            Debug.Log($"Ouch! I got hit by {context.instigator.name} for {context.data.damage} damage at point {context.point}. Current health: {currentHealth}");
         }
     }
 
     private void ApplyKnockback(HurtContext context)
     {
-        // TODO Implement knockback logic here, e.g., apply a force to the character's Rigidbody
-        // based on context.data.knockBack and the direction from context.point to the character.
+        
     }
 
     public void Die()
@@ -44,5 +42,6 @@ public class Health : MonoBehaviour
         {
             anim.SetTrigger("Die");
         }
+        Destroy(gameObject);
     }
 }
