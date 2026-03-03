@@ -23,13 +23,13 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
+        anim.SetFloat("speed", agent.velocity.magnitude / agent.speed);
 
         if (timePassed >= attackCD)
         {
             if (Vector3.Distance(player.transform.position, transform.position) <= attackRange)
             {
-                anim.SetTrigger("Attack");
+                anim.SetTrigger("attack");
                 timePassed = 0;
             }
         }
@@ -42,6 +42,16 @@ public class Enemy : MonoBehaviour
             transform.LookAt(player.transform);
         }
         newDestinationCD -= Time.deltaTime;
+    }
+
+    public void StartDealDamage()
+    {
+        GetComponentInChildren<Hurtbox>().StartDealDamage();
+    }
+
+    public void EndDealDamage()
+    {
+        GetComponentInChildren<Hurtbox>().EndDealDamage();
     }
 
     void OnDrawGizmos()

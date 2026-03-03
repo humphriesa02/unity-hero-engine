@@ -16,7 +16,7 @@ public class Health : MonoBehaviour
         currentHealth -= context.data.damage;
         if (anim != null)
         {
-            anim.SetTrigger("Damage");
+            anim.SetTrigger("damage");
         }
 
         if (currentHealth <= 0)
@@ -40,7 +40,7 @@ public class Health : MonoBehaviour
         Debug.Log($"{gameObject.name} has died!");
         if (anim != null)
         {
-            anim.SetTrigger("Die");
+            anim.SetTrigger("die");
         }
         Destroy(gameObject);
     }
