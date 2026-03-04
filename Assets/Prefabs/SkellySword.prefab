@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3431314538050592938}
   - component: {fileID: 2884189378474010584}
   m_Layer: 11
-  m_Name: Sword
+  m_Name: SkellySword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
