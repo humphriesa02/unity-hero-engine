@@ -58,6 +58,13 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Base camera movement of the game.
+    /// For exploring and adventuring.
+    /// 
+    /// Movement is based on player input, and will
+    /// try to ease itself towards the direction the player is moving in.
+    /// </summary>
     void FreeLook()
     {
         // Decided by player input atm

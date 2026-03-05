@@ -17,6 +17,7 @@ public class State
     protected InputAction moveAction; // Movement
     protected InputAction primaryAction; // "A" button press
     protected InputAction secondaryAction; // "B" button press
+    protected InputAction lockOnAction; // Left trigger hold
 
     public State(PlayerController _player, StateMachine _stateMachine)
     {
@@ -26,6 +27,7 @@ public class State
         moveAction = player.playerInput.actions["Move"];
         primaryAction = player.playerInput.actions["Primary"];
         secondaryAction = player.playerInput.actions["Secondary"];
+        lockOnAction = player.playerInput.actions["LockOn"];
     }
 
     /// <summary>

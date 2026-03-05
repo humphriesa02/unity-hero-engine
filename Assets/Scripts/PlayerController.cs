@@ -16,6 +16,8 @@ public struct PlayerStateData
     public Vector3 velocity; // Simulated velocity correlating with CharacterController
     public Vector2 moveInput; // Raw movement input
     public Vector3 moveDirection; // Movement input relative to camera forward
+    public Transform lockOnTarget; // The target we're locked on to, if any
+    public bool isStrafing;
 }
 
 [RequireComponent(typeof(CharacterController))]
