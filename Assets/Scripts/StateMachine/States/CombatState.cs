@@ -2,10 +2,6 @@ using UnityEngine;
 
 public class CombatState : State
 {
-    float gravityValue;
-    Vector3 currentVelocity;
-    bool grounded;
-    float playerSpeed;
     bool sheatheWeapon;
     bool attack;
 
@@ -18,16 +14,12 @@ public class CombatState : State
         base.Enter();
 
         sheatheWeapon = false;
-        moveInput = Vector2.zero;
-        velocity = Vector3.zero;
-        currentVelocity = Vector3.zero;
-        gravityVelocity.y = 0;
+        player.stateData.moveInput = Vector2.zero;
+        player.stateData.moveDirection = Vector3.zero;
+        player.stateData.velocity = Vector3.zero;
+        player.stateData.gravityVelocity.y = 0;
         player.animator.SetBool("combat", true);
         attack = false;
- 
-        playerSpeed = player.moveSpeed;
-        grounded = player.controller.isGrounded;
-        gravityValue = player.gravityValue;
     }
 
     public override void HandleInput()
@@ -43,18 +35,18 @@ public class CombatState : State
             attack = true;
         }
 
-        moveInput = moveAction.ReadValue<Vector2>();
-        velocity = new Vector3(moveInput.x, 0.0f, moveInput.y);
+        player.stateData.moveInput = moveAction.ReadValue<Vector2>();
+        player.stateData.moveDirection = new Vector3(player.stateData.moveInput.x, 0.0f, player.stateData.moveInput.y);
 
-        velocity = velocity.x * player.focus.right.normalized + velocity.z * player.focus.forward.normalized;
-        velocity.y = 0f;
+        player.stateData.moveDirection = player.stateData.moveDirection.x * player.focus.right.normalized + player.stateData.moveDirection.z * player.focus.forward.normalized;
+        player.stateData.moveDirection.y = 0f;
     }
 
     public override void LogicUpdate()
     {
         base.LogicUpdate();
 
-        player.animator.SetFloat("speed", moveInput.magnitude, player.speedDampTime, Time.deltaTime);
+        player.animator.SetFloat("speed", player.stateData.moveInput.magnitude, player.speedDampTime, Time.deltaTime);
 
         if (sheatheWeapon)
         { 
@@ -68,20 +60,19 @@ public class CombatState : State
             stateMachine.ChangeState(player.attackState);
         }
         
-        gravityVelocity.y += gravityValue * Time.deltaTime;
-        grounded = player.controller.isGrounded;
+        player.stateData.gravityVelocity.y += player.gravityValue * Time.deltaTime;
 
-        if (grounded && gravityVelocity.y < 0)
+        if (player.controller.isGrounded && player.stateData.gravityVelocity.y < 0)
         {
-            gravityVelocity.y = 0f;
+            player.stateData.gravityVelocity.y = 0f;
         }
 
-        currentVelocity = Vector3.SmoothDamp(currentVelocity, velocity, ref cVelocity, player.velocityDampTime);
-        player.controller.Move(playerSpeed * Time.deltaTime * currentVelocity + gravityVelocity * Time.deltaTime);
+        player.stateData.velocity = Vector3.SmoothDamp(player.stateData.velocity, player.stateData.moveDirection, ref cVelocity, player.velocityDampTime);
+        player.controller.Move(player.moveSpeed * Time.deltaTime * player.stateData.velocity + player.stateData.gravityVelocity * Time.deltaTime);
 
-        if (velocity.sqrMagnitude > 0)
+        if (player.stateData.moveDirection.sqrMagnitude > 0)
         {
-            player.transform.rotation = Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(velocity), player.rotationDampTime);
+            player.transform.rotation = Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(player.stateData.moveDirection), player.rotationDampTime);
         }
     }
 
@@ -89,11 +80,10 @@ public class CombatState : State
     {
         base.Exit();
 
-        gravityVelocity.y = 0f;
-        player.playerVelocity = new Vector3(moveInput.x, 0, moveInput.y);
-        if (velocity.sqrMagnitude > 0)
+        player.stateData.gravityVelocity.y = 0f;
+        if (player.stateData.moveDirection.sqrMagnitude > 0)
         {
-            player.transform.rotation = Quaternion.LookRotation(velocity);
+            player.transform.rotation = Quaternion.LookRotation(player.stateData.moveDirection);
         }
     }
 }

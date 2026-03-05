@@ -13,10 +13,6 @@ public class State
     protected PlayerController player;
     protected StateMachine stateMachine;
 
-    // Some good 
-    protected Vector3 gravityVelocity;
-    protected Vector3 velocity;
-    protected Vector2 moveInput;
 
     protected InputAction moveAction; // Movement
     protected InputAction primaryAction; // "A" button press

@@ -1,6 +1,23 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Accessible by anyone, allowing outsiders
+/// to know what's happening with the player.
+/// 
+/// Also spans all states allowing for one data store
+/// 
+/// Things like if they're in a cutscene,
+/// if they're attacking, if they're invulnerable, etc.
+/// </summary>
+public struct PlayerStateData
+{
+    public Vector3 gravityVelocity; // Active "fake" gravity value
+    public Vector3 velocity; // Simulated velocity correlating with CharacterController
+    public Vector2 moveInput; // Raw movement input
+    public Vector3 moveDirection; // Movement input relative to camera forward
+}
+
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
@@ -31,7 +48,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Transform focus;
     [HideInInspector] public Animator animator;
     [HideInInspector] public float gravityValue = -9.81f;
-    [HideInInspector] public Vector3 playerVelocity;
+    [HideInInspector] public PlayerStateData stateData;
     
     // State Machine
     private StateMachine movementSM;
