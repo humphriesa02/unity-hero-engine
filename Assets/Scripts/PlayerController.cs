@@ -22,6 +22,7 @@ public struct PlayerStateData
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Player Control")]
@@ -43,21 +44,24 @@ public class PlayerController : MonoBehaviour
     public float airControl = 0.5f;
     [Tooltip("The amount of time we stay 'landed'. After this time ends we can move again")]
     public float landingTime = 0.5f;
+    [Tooltip("Rotation speed during lockon")]
+    public float lockOnTurnSpeed = 540f;
 
     // Static Values
     [HideInInspector] public CharacterController controller;
     [HideInInspector] public PlayerInput playerInput;
     [HideInInspector] public Transform focus;
     [HideInInspector] public Animator animator;
+    [HideInInspector] public LockOnController lockOnController;
     [HideInInspector] public float gravityValue = -9.81f;
     [HideInInspector] public PlayerStateData stateData;
     
     // State Machine
-    private StateMachine movementSM;
-    public GroundState groundState;
+    private StateMachine playerSM;
+    public BaseGroundState groundState;
     public JumpState jumpState;
     public LandingState landingState;
-    public CombatState combatState;
+    public CombatGroundState combatState;
     public AttackState attackState;
 
     void Awake()
@@ -65,13 +69,14 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         animator = GetComponent<Animator>();
+        lockOnController = GetComponent<LockOnController>();
         
-        movementSM = new StateMachine();
-        groundState = new GroundState(this, movementSM);
-        jumpState = new JumpState(this, movementSM);
-        landingState = new LandingState(this, movementSM);
-        combatState = new CombatState(this, movementSM);
-        attackState = new AttackState(this, movementSM);
+        playerSM = new StateMachine();
+        groundState = new BaseGroundState(this, playerSM);
+        jumpState = new JumpState(this, playerSM);
+        landingState = new LandingState(this, playerSM);
+        combatState = new CombatGroundState(this, playerSM);
+        attackState = new AttackState(this, playerSM);
     }
 
     void Start()
@@ -81,27 +86,72 @@ public class PlayerController : MonoBehaviour
             focus = Camera.main.transform;
         }
 
-        movementSM.Initialize(groundState);
+        playerSM.Initialize(groundState);
     }
 
     void Update()
     {
-        movementSM.HandleInput();
-        movementSM.LogicUpdate();
+        playerSM.HandleInput();
+        playerSM.LogicUpdate();
     }
 
     void LateUpdate()
     {
-        movementSM.LateUpdate();
+        playerSM.LateUpdate();
     }
 
     void FixedUpdate()
     {
-        movementSM.PhysicsUpdate();
+        playerSM.PhysicsUpdate();
+    }
+
+    public void LockOn()
+    {
+        if(!lockOnController) return;
+        Transform lockedOnTransform = lockOnController.AttemptLockOn();
+        if (lockedOnTransform)
+        {
+            stateData.lockOnTarget = lockedOnTransform;
+            CameraController.Instance.SetState(CameraState.LockOn);
+        }
+    }
+
+    public void LockOff()
+    {
+        stateData.lockOnTarget = null;
+    }
+
+    public void LockOnValidityCheck()
+    {
+        if(!lockOnController) return;
+        bool isTargetValid = lockOnController.CheckForTargetValidity(stateData.lockOnTarget);
+        if (!isTargetValid)
+        {
+            stateData.lockOnTarget = null;
+        }
+    }
+
+    public void RotateTowardTarget(Transform target)
+    {
+        if (target == null) return;
+
+        Vector3 dir = target.position - transform.position;
+        dir.y = 0f;
+
+        if (dir.sqrMagnitude < 0.001f)
+            return;
+
+        Quaternion targetRot = Quaternion.LookRotation(dir);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRot,
+            lockOnTurnSpeed * Time.deltaTime
+        );
     }
 
     void OnGUI()
     {
-        GUI.Label(new Rect(15, 15, 300, 100), movementSM.GetCurrentState().ToString());
+        GUI.Label(new Rect(15, 15, 300, 100), playerSM.GetCurrentState().ToString());
     }
 }

@@ -35,11 +35,27 @@ public class CameraController : MonoBehaviour
     CinemachineOrbitalFollow orbital;
     private float alignTimer = 0f;
 
+    public void SetState(CameraState newState)
+    {
+        state = newState;
+    }
+
     void Awake()
     {
         Instance = this;
         if (!cam) cam = GetComponent<CinemachineCamera>();
         orbital = cam != null ? cam.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineOrbitalFollow : null; 
+    }
+
+    // Handle state changing here and actual
+    // camera movement in lateupdate
+    void Update()
+    {
+        // Revert to free if our lock target disappears.
+        if(state == CameraState.LockOn && player.stateData.lockOnTarget == null)
+        {
+            state = CameraState.Free;
+        }
     }
 
     void LateUpdate()
@@ -50,6 +66,7 @@ public class CameraController : MonoBehaviour
                 FreeLook();
                 break;
             case CameraState.LockOn:
+                LockOn();
                 break;
             case CameraState.Static:
                 break;
@@ -110,6 +127,23 @@ public class CameraController : MonoBehaviour
         }
 
         orbital.HorizontalAxis.Value += rotationSpeed * Time.deltaTime;
+    }
+
+    void LockOn()
+    {
+         if (!player || !player.stateData.lockOnTarget) return;
+
+        // direction from player to target
+        Vector3 toTarget = player.stateData.lockOnTarget.position - player.transform.position;
+        toTarget.y = 0f;
+
+        if (toTarget.sqrMagnitude < 0.001f)
+            return;
+
+        float targetYaw = Quaternion.LookRotation(toTarget).eulerAngles.y;
+
+        // set orbital camera yaw
+        orbital.HorizontalAxis.Value = targetYaw;
     }
 
     public void CameraShake(float intensity, float time)

@@ -14,6 +14,7 @@ public class AttackState : State
         base.Enter();
 
         attack = false;
+        player.RotateTowardTarget(player.stateData.lockOnTarget);
         player.animator.applyRootMotion = true;
         timePassed = 0f;
         player.animator.SetTrigger("attack");

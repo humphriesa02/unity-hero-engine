@@ -511,12 +511,13 @@ GameObject:
   m_Component:
   - component: {fileID: 294624080}
   - component: {fileID: 294624082}
-  - component: {fileID: 294624081}
-  - component: {fileID: 294624085}
   - component: {fileID: 294624083}
   - component: {fileID: 294624084}
+  - component: {fileID: 294624081}
+  - component: {fileID: 294624085}
   - component: {fileID: 294624087}
   - component: {fileID: 294624086}
+  - component: {fileID: 294624088}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -565,6 +566,7 @@ MonoBehaviour:
   playerInput: {fileID: 0}
   focus: {fileID: 1440636251}
   animator: {fileID: 0}
+  lockOnController: {fileID: 0}
   gravityValue: -9.81
 --- !u!143 &294624082
 CharacterController:
@@ -717,6 +719,29 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 1743637094903878, guid: 021a2f7a2c5bc4449b4c64a66a050e8c, type: 3}
   ragdollObject: {fileID: 0}
   camShakeTime: 0.2
+--- !u!114 &294624088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294624079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e36699239cd2dee45b9a4aacd21d8122, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LockOnController
+  player: {fileID: 294624081}
+  lockOnExtents: {x: 5, y: 5, z: 5}
+  forwardOffset: 5
+  lockOnMask:
+    serializedVersion: 2
+    m_Bits: 256
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 64
+  maxLockOnDistance: 12
+  distanceConeAngleDeg: 100
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
