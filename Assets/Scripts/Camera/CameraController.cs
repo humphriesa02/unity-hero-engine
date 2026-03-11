@@ -34,6 +34,8 @@ public class CameraController : MonoBehaviour
     private CameraState state = CameraState.Free;
     CinemachineOrbitalFollow orbital;
     private float alignTimer = 0f;
+    private bool prevStrafe;
+    private float lockedStrafeYaw;
 
     public void SetState(CameraState newState)
     {
@@ -84,18 +86,42 @@ public class CameraController : MonoBehaviour
     /// </summary>
     void FreeLook()
     {
+        bool strafing = player.stateData.isStrafing;
+
+        // Lock camera yaw when strafe begins
+        if (strafing && !prevStrafe)
+        {
+            Vector3 playerForward = player.transform.forward;
+            playerForward.y = 0f;
+            playerForward.Normalize();
+            lockedStrafeYaw = Quaternion.LookRotation(playerForward).eulerAngles.y;
+        }
+        prevStrafe = strafing;
+
+        // If strafing without a target, hold camera direction
+        if (strafing && player.stateData.lockOnTarget == null)
+        {
+            orbital.HorizontalAxis.Value = Mathf.LerpAngle(
+                orbital.HorizontalAxis.Value,
+                lockedStrafeYaw,
+                assistCameraSpeed * Time.deltaTime
+            );
+            return;
+        }
         // Decided by player input atm
         bool isMoving = player.stateData.moveInput.sqrMagnitude > 0.01f;
 
         // Camera dir
         Vector3 camForward = Camera.main.transform.forward;
-        camForward.y = 0;
+        camForward.y = 0f;
         camForward.Normalize();
 
         // The direction we want the camera to be facing
         Vector3 intendedDirection = player.stateData.moveDirection;
         intendedDirection.y = 0f;
-        intendedDirection.Normalize();
+
+        if (intendedDirection.sqrMagnitude > 0.0001f)
+            intendedDirection.Normalize();
 
         // The speed at which the camera rotates to align with intended dir
         float cameraSpeed = maxCameraSpeed;
@@ -105,9 +131,9 @@ public class CameraController : MonoBehaviour
             alignTimer += Time.deltaTime;
             if (alignTimer >= timeBeforeAlign)
             {
-                // Update these in the case we need to align to the player
-                // while they are not moving
                 intendedDirection = player.transform.forward;
+                intendedDirection.y = 0f;
+                intendedDirection.Normalize();
                 cameraSpeed = assistCameraSpeed;
             }
         }

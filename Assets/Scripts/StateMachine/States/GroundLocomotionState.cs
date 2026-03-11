@@ -13,7 +13,8 @@ public class GroundLocomotionState : State
 {
     protected bool jump;
     protected bool roll;
-    protected bool strafe;
+    private bool prevStrafe;
+    private Vector3 strafeForward;
     protected bool lockOn;
 
     private Vector3 cVelocity;
@@ -30,6 +31,13 @@ public class GroundLocomotionState : State
         player.stateData.moveDirection = Vector3.zero;
         player.stateData.velocity = Vector3.zero;
         player.stateData.gravityVelocity.y = 0;
+
+        strafeForward = player.transform.forward;
+        strafeForward.y = 0f;
+        if (strafeForward.sqrMagnitude > 0.001f)
+            strafeForward.Normalize();
+
+        prevStrafe = false;
     }
 
     public override void HandleInput()
@@ -40,7 +48,7 @@ public class GroundLocomotionState : State
         {
             roll = true;
         }
-        strafe = lockOnAction.IsPressed();
+        player.stateData.isStrafing = lockOnAction.IsPressed();
 
         if (lockOnAction.WasPressedThisFrame())
         {
@@ -59,6 +67,8 @@ public class GroundLocomotionState : State
         base.LogicUpdate();
 
         player.animator.SetFloat("speed", player.stateData.moveInput.magnitude, player.speedDampTime, Time.deltaTime);
+        player.animator.SetFloat("inputX", player.stateData.moveInput.x);
+        player.animator.SetBool("isStrafing", player.stateData.isStrafing || player.stateData.lockOnTarget != null);
 
         if (jump) stateMachine.ChangeState(player.jumpState);
 
@@ -77,24 +87,53 @@ public class GroundLocomotionState : State
         }
         lockOn = false;
 
-        player.stateData.gravityVelocity.y += player.gravityValue * Time.deltaTime;
+        if (player.stateData.isStrafing && !prevStrafe)
+        {
+            if (player.stateData.lockOnTarget == null)
+            {
+                strafeForward = player.transform.forward;
+                strafeForward.y = 0f;
+                if (strafeForward.sqrMagnitude > 0.001f)
+                    strafeForward.Normalize();
+            }
+        }
+        prevStrafe = player.stateData.isStrafing;
 
+        // Apply gravity
+        player.stateData.gravityVelocity.y += player.gravityValue * Time.deltaTime;
         if (player.controller.isGrounded && player.stateData.gravityVelocity.y < 0)
         {
             player.stateData.gravityVelocity.y = 0f;
         }
 
+        // Move the player
         player.stateData.velocity = Vector3.SmoothDamp(player.stateData.velocity, player.stateData.moveDirection, ref cVelocity, player.velocityDampTime);
         player.controller.Move(player.moveSpeed * Time.deltaTime * player.stateData.velocity + player.stateData.gravityVelocity * Time.deltaTime);
 
+        // Handle rotation of the player
         if (player.stateData.lockOnTarget)
         {
             player.RotateTowardTarget(player.stateData.lockOnTarget);
             player.LockOnValidityCheck();
         }
+        else if (player.stateData.isStrafing)
+        {
+            if (strafeForward.sqrMagnitude > 0.001f)
+            {
+                player.transform.rotation = Quaternion.Slerp(
+                    player.transform.rotation,
+                    Quaternion.LookRotation(strafeForward),
+                    player.rotationDampTime
+                );
+            }
+        }
         else if (player.stateData.moveDirection.sqrMagnitude > 0)
         {
-            player.transform.rotation = Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(player.stateData.moveDirection), player.rotationDampTime);
+            player.transform.rotation = Quaternion.Slerp(
+                player.transform.rotation,
+                Quaternion.LookRotation(player.stateData.moveDirection),
+                player.rotationDampTime
+            );
         }
     }
 
